@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Room 417</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #080808;
+  --off-white: #e8e4dc;
+  --gray: #3a3a3a;
+  --dim: #222;
+  --muted: #999;
+  --red: #c0392b;
+  --red-dim: #7a1f17;
+  --warm: #b8955a;
+  --mono: 'IBM Plex Mono', monospace;
+  --serif: 'Playfair Display', serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--black);
+  color: var(--off-white);
+  font-family: var(--mono);
+  font-size: 24px;
+  line-height: 1.7;
+  overflow: hidden;
+}
+
+.scene {
+  position: fixed; inset: 0;
+  display: none;
+  overflow-y: auto;
+}
+.scene.active {
+  display: flex;
+  flex-direction: column;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 1000; opacity: 0.4;
+}
+
+/* ── OPENING ── */
+#s-open { justify-content: center; align-items: center; background: var(--black); }
+.open-inner {
+  max-width: 520px; width: 90%;
+  display: flex; flex-direction: column; gap: 2.5rem;
+}
+.open-text p {
+  font-family: var(--serif);
+  font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+  font-weight: 400; color: #b8b8b8;
+  line-height: 1.9; opacity: 0;
+  animation: rise 1s ease forwards;
+}
+.open-text p:nth-child(1) { animation-delay: 0.3s; }
+.open-text p:nth-child(2) { animation-delay: 1.6s; }
+.open-text p:nth-child(3) {
+  animation-delay: 3s; color: var(--off-white);
+  font-style: italic; font-size: clamp(1.35rem, 2.8vw, 1.7rem);
+}
+.open-btns { display: flex; flex-direction: column; gap: 0.8rem; opacity: 0; animation: rise 0.8s ease 5s forwards; }
+@keyframes rise { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+
+/* ── BUTTONS ── */
+.btn {
+  font-family: var(--mono); font-size: 0.78rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  border: none; cursor: pointer;
+  padding: 0.9rem 1.7rem; transition: all 0.15s; width: fit-content;
+}
+.btn-primary { background: var(--off-white); color: var(--black); }
+.btn-primary:hover { background: #fff; transform: translateX(3px); }
+.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; background: #888; }
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid #2a2a2a; }
+.btn-ghost:hover { color: #c8c8c8; border-color: #555; }
+
+/* ── SKIP ── */
+#s-skip { justify-content: flex-start; align-items: center; background: #050505; overflow-y: auto; }
+.skip-inner { max-width: 580px; width: 90%; display: flex; flex-direction: column; gap: 2rem; margin: 0 auto; padding: 3rem 0; }
+.skip-intro { font-family: var(--serif); font-style: italic; font-size: 0.9rem; color: #999; border-left: 2px solid #222; padding-left: 1.2rem; }
+.skip-stat { display: flex; flex-direction: column; gap: 0.4rem; border-bottom: 1px solid #1a1a1a; padding-bottom: 1.2rem; }
+.skip-num { font-family: var(--serif); font-size: 1.6rem; color: var(--off-white); }
+.skip-desc { font-size: 0.72rem; color: #a0a0a0; line-height: 1.7; }
+.skip-verdict { font-family: var(--serif); font-size: 0.88rem; color: #888; font-style: italic; text-align: center; padding: 1.5rem 0; }
+.skip-actions { display: flex; flex-direction: column; gap: 0.7rem; }
+
+/* ── CASEFILE ── */
+#s-casefile { background: #0c0c0c; }
+.cf-header { padding: 2rem 2.5rem 1.2rem; border-bottom: 1px solid #1e1e1e; flex-shrink: 0; }
+.cf-stamp { font-size: 0.62rem; letter-spacing: 0.25em; color: var(--red); border: 1px solid var(--red-dim); display: inline-block; padding: 0.15rem 0.5rem; margin-bottom: 0.8rem; opacity: 0.7; }
+.cf-header h2 { font-family: var(--serif); font-size: 1.25rem; font-weight: 400; color: #ccc; }
+.cf-ref { font-size: 0.68rem; color: #666; margin-top: 0.3rem; }
+.cf-body { flex: 1; overflow-y: auto; padding: 1.5rem 2.5rem; display: flex; flex-direction: column; gap: 0.7rem; }
+.doc-row {
+  display: grid; grid-template-columns: 1fr auto auto;
+  align-items: center; gap: 1rem; padding: 0.95rem 1.1rem;
+  background: #111; border: 1px solid #1e1e1e;
+  cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;
+}
+.doc-row:hover { background: #161616; border-color: #444; }
+.doc-row.viewed { border-left: 2px solid #2a4a3a; }
+.doc-row.locked { cursor: not-allowed; opacity: 0.5; }
+.doc-row.locked:hover { background: #111; border-color: #1e1e1e; }
+.doc-row.slow::after { content: ''; position: absolute; bottom: 0; left: 0; height: 2px; background: #2a2218; animation: loadbar 4s linear forwards; }
+.doc-row.slow2::after { content: ''; position: absolute; bottom: 0; left: 0; height: 2px; background: #2a2218; animation: loadbar 7s linear forwards; }
+@keyframes loadbar { from { width:0 } to { width:100% } }
+.doc-name { font-size: 0.82rem; letter-spacing: 0.05em; color: #ccc; }
+.doc-access { font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.2rem 0.5rem; }
+.tag-fast { background: #0f2a1e; color: #4ab870; }
+.tag-slow { background: #1e1500; color: #c09040; }
+.tag-done { background: #1a2a1e; color: #5ab870; }
+.doc-chevron { color: #555; font-size: 0.85rem; }
+.doc-row:hover .doc-chevron { color: #999; }
+.cf-footer { padding: 1rem 2.5rem; border-top: 1px solid #1e1e1e; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.cf-count { font-size: 0.68rem; color: #666; }
+.cf-count span { color: #999; }
+
+/* ── MODAL ── */
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 500; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.modal-bg.open { opacity: 1; pointer-events: all; }
+.modal { background: #0f0f0f; border: 1px solid #2a2a2a; max-width: 600px; width: 92%; max-height: 80vh; overflow-y: auto; padding: 2rem; transform: translateY(12px); transition: transform 0.2s; display: flex; flex-direction: column; position: relative; }
+.modal-bg.open .modal { transform: translateY(0); }
+.modal-tag { font-size: 0.64rem; letter-spacing: 0.2em; color: #888; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid #1a1a1a; padding-right: 3rem; }
+.modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: #777; font-family: var(--mono); font-size: 0.7rem; cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; }
+.modal-close:hover { color: #bbb; }
+.modal-body p { font-size: 0.88rem; color: #b0b0b0; line-height: 1.9; margin-bottom: 0.9rem; }
+.modal-body .hl { color: #e0e0e0; font-style: italic; }
+.modal-body .fine { font-size: 0.76rem; color: #888; border-top: 1px solid #1a1a1a; padding-top: 0.8rem; margin-top: 1rem; }
+.modal-body strong { color: #ccc; font-weight: 500; }
+
+/* ── DECISION ── */
+#s-decision { justify-content: center; align-items: center; background: #080808; }
+.dec-inner { max-width: 680px; width: 90%; margin: auto; padding: 3rem 0; }
+.dec-label { font-size: 0.64rem; letter-spacing: 0.22em; color: #666; margin-bottom: 1.2rem; }
+.dec-q { font-family: var(--serif); font-size: clamp(1.25rem, 2.5vw, 1.6rem); font-weight: 400; color: #ccc; font-style: italic; margin-bottom: 0.5rem; }
+.dec-sub { font-size: 0.76rem; color: #666; margin-bottom: 2.5rem; }
+.dec-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+.dec-card { border: 1px solid #1e1e1e; background: #0d0d0d; padding: 1.8rem 1.4rem; cursor: pointer; text-align: left; font-family: var(--mono); color: inherit; transition: all 0.25s; display: flex; flex-direction: column; gap: 0.8rem; }
+.dec-card:hover { border-color: #444; background: #111; transform: translateY(-3px); }
+.dec-card.inst:hover { border-color: #2a3a30; }
+.dec-card.comm:hover { border-color: #3a2a18; }
+.dec-icon { font-size: 1.5rem; filter: grayscale(1); opacity: 0.5; }
+.dec-card.comm .dec-icon { filter: none; opacity: 0.8; }
+.dec-title { font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; color: #bbb; }
+.dec-desc { font-size: 0.78rem; color: #777; line-height: 1.6; }
+
+/* ── NARRATIVE ── */
+#s-narrative { background: #080808; justify-content: flex-end; }
+.narr-track { flex: 1; overflow-y: auto; padding: 3rem 0 1rem; display: flex; flex-direction: column; gap: 0; scroll-behavior: smooth; }
+
+.beat { padding: 1.4rem 2rem; max-width: 680px; width: 100%; margin: 0 auto; opacity: 0; animation: beatIn 0.5s ease forwards; }
+@keyframes beatIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+
+.beat-interrupt { background: #0f0808; border-left: 2px solid var(--red-dim); margin: 0.3rem auto; padding: 0.9rem 1.5rem; max-width: 680px; width: 100%; }
+.beat-interrupt .int-label { font-size: 0.62rem; letter-spacing: 0.2em; color: var(--red); margin-bottom: 0.4rem; }
+.beat-interrupt p { font-size: 0.82rem; color: #c89080; line-height: 1.7; }
+
+.beat-scene p { font-family: var(--serif); font-size: 1.05rem; color: #bbb; line-height: 1.9; }
+.beat-scene p + p { margin-top: 0.6rem; }
+.beat-scene .hl { color: var(--off-white); }
+
+.beat-time { font-size: 0.62rem; letter-spacing: 0.15em; color: #555; margin-bottom: 0.7rem; font-family: var(--mono); }
+
+.beat-converge { background: #060606; border: 1px solid #1e1e1e; margin: 0.8rem auto; padding: 1.8rem 2rem; max-width: 680px; width: 100%; opacity: 0; animation: beatIn 0.5s ease forwards; }
+.beat-converge .conv-moment { font-size: 0.62rem; letter-spacing: 0.22em; color: #555; margin-bottom: 0.8rem; font-family: var(--mono); }
+.beat-converge .conv-q { font-family: var(--serif); font-size: clamp(1.15rem, 2.2vw, 1.5rem); font-style: italic; color: #ccc; line-height: 1.5; margin-bottom: 1rem; }
+.beat-converge .conv-context { font-size: 0.85rem; color: #888; line-height: 1.8; border-left: 1px solid #2a2a2a; padding-left: 1rem; margin-bottom: 1.5rem; }
+.beat-converge .conv-note { font-size: 0.68rem; color: #555; font-style: italic; margin-top: 0.8rem; }
+
+.narr-choices { flex-shrink: 0; padding: 1.2rem 2rem 2rem; max-width: 680px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 0.6rem; }
+.choice-btn { font-family: var(--mono); font-size: 0.82rem; background: #0e0e0e; border: 1px solid #202020; color: #999; padding: 0.9rem 1.2rem; cursor: pointer; text-align: left; transition: all 0.15s; letter-spacing: 0.02em; position: relative; }
+.choice-btn::before { content: '→ '; color: #444; transition: color 0.15s; }
+.choice-btn:hover { background: #141414; border-color: #444; color: #ddd; }
+.choice-btn:hover::before { color: #999; }
+.choice-btn:disabled { opacity: 0.25; cursor: not-allowed; text-decoration: line-through; }
+
+.narr-status { font-size: 0.62rem; letter-spacing: 0.12em; color: #555; padding: 0.8rem 2rem 0.3rem; max-width: 680px; width: 100%; margin: 0 auto; }
+
+/* ── REVEAL ── */
+#s-reveal { justify-content: flex-start; align-items: center; background: #050505; overflow-y: auto; }
+.rev-inner { max-width: 620px; width: 90%; display: flex; flex-direction: column; gap: 2.5rem; padding: 3rem 0; margin: 0 auto; }
+.rev-statement { text-align: center; }
+.rev-statement p { font-family: var(--serif); font-style: italic; font-size: clamp(0.95rem, 1.8vw, 1.15rem); color: #888; line-height: 1.8; }
+.rev-statement .white { color: var(--off-white); }
+.rev-stats { display: flex; flex-direction: column; gap: 1.2rem; }
+.rev-stat { display: flex; flex-direction: column; gap: 0.4rem; padding-bottom: 1.1rem; border-bottom: 1px solid #141414; }
+.rev-num { font-family: var(--serif); font-size: 1.1rem; color: #ddd; }
+.rev-desc { font-size: 0.72rem; color: #888; line-height: 1.7; }
+
+/* ── FINAL ── */
+#s-final { justify-content: center; align-items: center; background: #050505; }
+.fin-inner { max-width: 520px; width: 90%; display: flex; flex-direction: column; align-items: center; gap: 2rem; text-align: center; }
+.fin-q { font-family: var(--serif); font-size: clamp(1.1rem, 2.2vw, 1.4rem); font-style: italic; font-weight: 400; color: #bbb; }
+.fin-opts { display: flex; gap: 0.8rem; flex-wrap: wrap; justify-content: center; }
+.fin-btn { font-family: var(--mono); font-size: 0.76rem; background: transparent; border: 1px solid #252525; color: #888; padding: 0.75rem 1.5rem; cursor: pointer; letter-spacing: 0.08em; transition: all 0.2s; }
+.fin-btn:hover { border-color: #666; color: #ddd; }
+.fin-btn.chosen { border-color: #999; color: #ddd; background: #111; }
+.fin-response { font-family: var(--serif); font-style: italic; font-size: 0.9rem; color: #999; line-height: 2; max-width: 440px; display: none; }
+.fin-response.show { display: block; }
+.fin-restart { font-family: var(--mono); font-size: 0.68rem; background: none; border: none; color: var(--off-white); cursor: pointer; letter-spacing: 0.1em; margin-top: 1rem; transition: color 0.15s; }
+.fin-restart:hover { color: #fff; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: #222; }
+</style>
+</head>
+<body>
+
+<!-- OPENING -->
+<section class="scene" id="s-open">
+  <div class="open-inner">
+    <div class="open-text">
+      <p>You are a case worker.</p>
+      <p>You have been assigned to make a placement recommendation</p>
+      <p>for a young woman named Alyssa.</p>
+    </div>
+    <div class="open-btns">
+      <button class="btn btn-primary" id="btn-review" onclick="show('s-casefile')">Review Case File</button>
+      <button class="btn btn-ghost" onclick="skipFile()">Skip to Recommendation</button>
+    </div>
+  </div>
+</section>
+
+<!-- SKIP -->
+<section class="scene" id="s-skip">
+  <div class="skip-inner">
+    <p class="skip-intro">You skipped the file. Most placement decisions are made this way.</p>
+    <div class="skip-stat">
+      <div class="skip-num">607,000+</div>
+      <div class="skip-desc">people with intellectual and developmental disabilities are currently on waiting lists for Medicaid home and community-based services across the U.S. Community placement is not an option yet, even when it is the right one. (KFF, 2024)</div>
+    </div>
+    <div class="skip-stat">
+      <div class="skip-num">7 to 13 years</div>
+      <div class="skip-desc">typical wait for home and community-based services in states like Kansas, North Carolina, and Colorado. During that time, institutionalization may be the only funded option. (State DD Agency reports, 2023 and 2024)</div>
+    </div>
+    <div class="skip-stat">
+      <div class="skip-num">72%</div>
+      <div class="skip-desc">of adults with intellectual and developmental disabilities in the U.S. live with family members. Most have no formal paid support and are waiting for services that may not arrive for years. (RISP, University of Minnesota, 2021)</div>
+    </div>
+    <p class="skip-verdict">The system makes the decision before you do.</p>
+    <div class="skip-actions">
+      <button class="btn btn-primary" onclick="show('s-casefile')">Review the file first</button>
+      <button class="btn btn-ghost" onclick="show('s-decision')">Proceed without it →</button>
+    </div>
+  </div>
+</section>
+
+<!-- CASE FILE -->
+<section class="scene" id="s-casefile">
+  <div class="cf-header">
+    <div class="cf-stamp">CONFIDENTIAL</div>
+    <h2>Case File: Alyssa M., DOB 02/14/2003</h2>
+    <p class="cf-ref">Ref: SVC-22-0417 &nbsp;|&nbsp; Assigned Worker: <em>You</em></p>
+  </div>
+  <div class="cf-body">
+    <div class="doc-row" id="row-medical" data-id="medical" onclick="openDoc('medical')">
+      <div><div class="doc-name">Medical Notes</div></div>
+      <span class="doc-access tag-fast">Ready</span>
+      <span class="doc-chevron">›</span>
+    </div>
+    <div class="doc-row" id="row-behavior" data-id="behavior" onclick="openDoc('behavior')">
+      <div><div class="doc-name">Incident Reports</div></div>
+      <span class="doc-access tag-fast">Ready</span>
+      <span class="doc-chevron">›</span>
+    </div>
+    <div class="doc-row" id="row-funding" data-id="funding" onclick="openDoc('funding')">
+      <div><div class="doc-name">Funding Summary</div></div>
+      <span class="doc-access tag-fast">Ready</span>
+      <span class="doc-chevron">›</span>
+    </div>
+    <div class="doc-row slow locked" id="row-family" data-id="family">
+      <div><div class="doc-name">Letter from Alyssa's Mother</div></div>
+      <span class="doc-access tag-slow" id="tag-family">Loading…</span>
+      <span class="doc-chevron">›</span>
+    </div>
+    <div class="doc-row slow2 locked" id="row-voice" data-id="voice">
+      <div><div class="doc-name">Alyssa's Own Words</div></div>
+      <span class="doc-access tag-slow" id="tag-voice">Loading…</span>
+      <span class="doc-chevron">›</span>
+    </div>
+  </div>
+  <div class="cf-footer">
+    <div class="cf-count">Reviewed: <span id="doc-count">0</span> / 5</div>
+    <button class="btn btn-primary" id="cf-proceed" onclick="show('s-decision')" disabled>Make Recommendation →</button>
+  </div>
+</section>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModalDirect()">✕ close</button>
+    <div class="modal-tag" id="modal-tag"></div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- DECISION -->
+<section class="scene" id="s-decision">
+  <div class="dec-inner">
+    <div class="dec-label">PLACEMENT RECOMMENDATION</div>
+    <div class="dec-q">What level of care is most appropriate for Alyssa?</div>
+    <div class="dec-sub">Your recommendation determines everything that follows.</div>
+    <div class="dec-opts">
+      <button class="dec-card inst" onclick="decide('inst')">
+        <div class="dec-icon">🏛</div>
+        <div class="dec-title">Institutionalization</div>
+        <div class="dec-desc">Placement in a congregate care facility. 24-hour supervision. Restricted autonomy. Structured daily programming determined by staff.</div>
+      </button>
+      <button class="dec-card comm" onclick="decide('comm')">
+        <div class="dec-icon">🏘</div>
+        <div class="dec-title">Community-Based Support</div>
+        <div class="dec-desc">Supported independent living. Community access. Personalized care plan.</div>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- NARRATIVE -->
+<section class="scene" id="s-narrative">
+  <div class="narr-status" id="narr-status"></div>
+  <div class="narr-track" id="narr-track"></div>
+  <div class="narr-choices" id="narr-choices"></div>
+</section>
+
+<!-- REVEAL -->
+<section class="scene" id="s-reveal">
+  <div class="rev-inner">
+    <div class="rev-statement">
+      <p>"Alyssa's outcomes were not determined by ability,</p>
+      <p class="white">but by placement."</p>
+    </div>
+    <div class="rev-stats">
+      <div class="rev-stat">
+        <div class="rev-num">~63,000</div>
+        <div class="rev-desc">people with intellectual and developmental disabilities currently live in institutions, nursing homes, or psychiatric facilities in the U.S. Down from nearly 200,000 in the 1960s, but the work is unfinished. (RISP, University of Minnesota, 2021)</div>
+      </div>
+      <div class="rev-stat">
+        <div class="rev-num">$144K vs $47K</div>
+        <div class="rev-desc">average annual cost per person: institutional care versus home and community-based services. Institutions cost roughly three times more, yet produce worse outcomes. (RISP FY2020; AAIDD FY2021)</div>
+      </div>
+      <div class="rev-stat">
+        <div class="rev-num">Olmstead</div>
+        <div class="rev-desc">v. L.C. (1999): The Supreme Court ruled that confining people with disabilities in institutions when they could live in the community is discrimination under the ADA. More than 25 years later, hundreds of thousands remain on waiting lists for the community services that ruling promised.</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="show('s-final')">Continue →</button>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section class="scene" id="s-final">
+  <div class="fin-inner">
+    <div class="fin-q">Would you make the same recommendation again?</div>
+    <div class="fin-opts">
+      <button class="fin-btn" onclick="finalPick('yes',this)">Yes</button>
+      <button class="fin-btn" onclick="finalPick('no',this)">No</button>
+      <button class="fin-btn" onclick="finalPick('unsure',this)">I'm not sure</button>
+    </div>
+    <div class="fin-response" id="fin-response"></div>
+    <button class="fin-restart" onclick="restart()">↺ start over</button>
+  </div>
+</section>
+
+<script>
+const G = {
+  placement: null, beatIndex: 0, choices: [],
+  docsViewed: new Set(),
+  slowReady: { family: false, voice: false },
+  convergeChoice: null,
+};
+
+// ── SCENE MANAGEMENT ──
+function show(id) {
+  document.querySelectorAll('.scene').forEach(s => {
+    s.classList.remove('active');
+  });
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  if (id === 's-narrative') startNarrative();
+}
+
+function skipFile() { show('s-skip'); }
+
+// ── DOCUMENTS ──
+const DOCS = {
+  medical: {
+    tag: 'MEDICAL NOTES: PRIMARY CARE SUMMARY',
+    html: `
+      <p><strong>Diagnosis:</strong> Moderate intellectual and developmental disability. She also has an anxiety disorder.</p>
+      <p>Alyssa needs some help managing her medications and getting around. She speaks and understands conversation well.</p>
+      <p>Behavioral notes: In the past 18 months, Alyssa has left a supervised area without permission twice. Staff note she often tries to leave scheduled activities. <span class="hl">There have been no incidents involving harm to herself or others.</span></p>
+    `
+  },
+  behavior: {
+    tag: 'INCIDENT REPORTS: Q1 THROUGH Q3',
+    html: `
+      <p><strong>Total incidents logged: 8.</strong> All categorized as "non-compliance" or "wandering risk."</p>
+      <p>These included: refusing a group activity (resolved in 10 minutes), expressing frustration when outdoor time was canceled, twice trying to leave without staff, and refusing medication two mornings (resolved when a staff member she trusted spoke with her).</p>
+      <p><strong>No injuries. No property damage. No harm to others.</strong></p>
+      <p class="fine">When someone wants more independence in a setting that restricts it, that shows up as incident reports. The reports do not record what she was trying to get to. Only that she tried to leave.</p>
+    `
+  },
+  funding: {
+    tag: 'FUNDING SUMMARY',
+    html: `
+      <p><strong>Institutional care average annual cost:</strong> roughly $144,000 per person, paid through Medicaid (2020 data).</p>
+      <p><strong>Home and community-based services average annual cost:</strong> roughly $47,000 per person (2021 data).</p>
+      <p><strong>Community services waitlist:</strong> Alyssa's family applied four years ago. In most states, the wait for these services ranges from <span class="hl">7 to 13 years</span>, sometimes longer.</p>
+      <p>One bed is currently open at a nearby facility. Medicaid only pays for it when someone is in it. <span class="hl">Facilities are funded per filled bed, not per outcome.</span></p>
+    `
+  },
+  family: {
+    tag: 'LETTER FROM DIANA M.: FILED UNDER SUPPLEMENTARY MATERIALS',
+    html: `
+      <p>To whoever is reading this —</p>
+      <p><span class="hl">Alyssa loves documentaries. Especially ones about animals and space. If you sit with her for more than ten minutes, you will know more about the migratory patterns of monarch butterflies than you ever expected to.</span> She will make sure of it.</p>
+      <p>What I'm asking you to understand is that the behaviors in those reports, the wandering, the refusals, those are her way of communicating something. That the schedule is wrong. That the space doesn't fit.</p>
+      <p>Every time we've asked for an alternative, we've been told to wait. We've been waiting for four years.</p>
+      <p>I am not asking for perfection. I am asking for a chance. With hope, Diana M.</p>
+    `
+  },
+  voice: {
+    tag: "ALYSSA'S OWN WORDS — INTERVIEW TRANSCRIPT",
+    html: `
+      <p><strong>Interviewer:</strong> What do you like to do when you have free time?</p>
+      <p><span class="hl"><strong>Alyssa:</strong> I like going outside. Just walking. I like when it's cold and the air does that thing where you can see it. You know? I like that.</span></p>
+      <p><strong>Interviewer:</strong> What do you wish people knew about you?</p>
+      <p><span class="hl"><strong>Alyssa:</strong> I know what I want. People think because I need help with some stuff that I don't know what I want. But I do. I know exactly what I want.</span></p>
+      <p><strong>Interviewer:</strong> What would you say to the people deciding where you live?</p>
+      <p><span class="hl"><strong>Alyssa:</strong> Just... talk to me first? [pause] That would be nice.</span></p>
+    `
+  }
+};
+
+let slowTimers = {};
+
+function initSlowDocs() {
+  slowTimers.family = setTimeout(() => {
+    G.slowReady.family = true;
+    const row = document.getElementById('row-family');
+    const tag = document.getElementById('tag-family');
+    if (row) {
+      row.classList.remove('locked');
+      row.onclick = () => openDoc('family');
+    }
+    if (tag) { tag.textContent = 'Ready'; tag.className = 'doc-access tag-done'; }
+  }, 4000);
+
+  slowTimers.voice = setTimeout(() => {
+    G.slowReady.voice = true;
+    const row = document.getElementById('row-voice');
+    const tag = document.getElementById('tag-voice');
+    if (row) {
+      row.classList.remove('locked');
+      row.onclick = () => openDoc('voice');
+    }
+    if (tag) { tag.textContent = 'Ready'; tag.className = 'doc-access tag-done'; }
+  }, 7000);
+}
+
+function openDoc(id) {
+  const doc = DOCS[id];
+  if (!doc) return;
+  document.getElementById('modal-tag').textContent = doc.tag;
+  document.getElementById('modal-body').innerHTML = doc.html;
+  document.getElementById('modal').classList.add('open');
+  markViewed(id);
+}
+
+function markViewed(id) {
+  if (G.docsViewed.has(id)) return;
+  G.docsViewed.add(id);
+  const row = document.querySelector(`[data-id="${id}"]`);
+  if (row) row.classList.add('viewed');
+  const count = document.getElementById('doc-count');
+  if (count) count.textContent = G.docsViewed.size;
+  const btn = document.getElementById('cf-proceed');
+  if (btn && G.docsViewed.size >= 2) btn.disabled = false;
+}
+
+function closeModal(e) {
+  if (e && e.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('open');
+  }
+}
+function closeModalDirect() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+// ── DECISION ──
+function decide(type) { G.placement = type; show('s-narrative'); }
+
+// ── NARRATIVE ──
+const CONVERGE_BEAT = {
+  type: 'converge',
+  inst: {
+    moment: 'TUESDAY, 3:47 PM',
+    q: 'Alyssa wants to go outside. Alone.',
+    context: 'She is standing near the rear exit. This is the third time this week. Under her care classification, she is not allowed outside without staff. You are the supervisor on duty.',
+    choices: [
+      { text: 'Deny the request. Protocol requires it.', outcome: 'She sits down. Doesn\'t say anything. The exit remains closed.' },
+      { text: 'Offer an escorted walk. 15 minutes around the parking lot.', outcome: 'Two staff members, fifteen minutes, a loop around the parking lot. She looks at the sky the whole time.' },
+      { text: 'Tell her to wait for scheduled recreation time', outcome: 'She waits. Two hours later, scheduled outdoor time is also canceled. Not enough staff.' },
+    ]
+  },
+  comm: {
+    moment: 'TUESDAY, 3:47 PM',
+    q: 'Alyssa wants to go outside. Alone.',
+    context: 'She\'s at the front door. Coat on. You\'re the support worker on call.',
+    choices: [
+      { text: 'Tell her that\'s fine. You\'ll be here when she\'s back.', outcome: 'She goes. Returns an hour later with a leaf she picked up somewhere. No incident. Just a walk.' },
+      { text: 'Offer to go with her', outcome: 'You both go. She walks fast. You end up talking about monarch butterflies. It\'s a good hour.' },
+      { text: 'Suggest she wait until later in the afternoon', outcome: 'She waits. Goes the next morning, before your shift starts. You hear about it secondhand.' },
+    ]
+  }
+};
+
+const INST_BEATS = [
+  {
+    type: 'scene',
+    time: 'DAY 1, 6:00 a.m.',
+    text: [
+      'The lights come on automatically. Not gradually. Just on. Alyssa blinks at the ceiling of Room 417.',
+      'There is a schedule on the door. It was there when she arrived. It was not discussed.',
+      'She sits up. Looks at it for a long time.'
+    ],
+    choices: [
+      { text: 'Go over and explain the schedule to her', next: 1 },
+      { text: 'Leave her to read it on her own', next: 1 },
+    ]
+  },
+  {
+    type: 'interrupt',
+    label: 'NOTICE',
+    text: 'Morning medications are administered at 7:15 a.m. Attendance at breakfast is required by 6:45 a.m. Failure to comply is logged.',
+    auto: true, next: 2
+  },
+  {
+    type: 'scene',
+    time: 'DAY 1, 9:00 a.m.',
+    text: [
+      'Group activity: job skills practice. Alyssa sits at a table with seven other residents.',
+      'The task is sorting. She has done this before. Last Tuesday. And the Tuesday before that.',
+      'She completes it quickly and then sits with her hands in her lap.'
+    ],
+    choices: [
+      { text: 'Note her completion and move on', next: 3 },
+      { text: 'Ask if she\'d prefer a different task', next: 3, override: 'Request noted. No alternative available at this time.' },
+    ]
+  },
+  {
+    type: 'scene',
+    time: 'DAY 4, AFTERNOON',
+    text: [
+      'Her mother calls. The phone is in the common room. You and two other staff members are nearby.',
+      'Alyssa asks if there\'s somewhere more private she can take the call.',
+      'There isn\'t.'
+    ],
+    choices: [
+      { text: 'Let the call proceed in the common room', next: 4 },
+      { text: 'Step away to give her some distance', next: 4, override: 'Privacy cannot be guaranteed in this environment. Staff must remain in observation range.' },
+    ]
+  },
+  {
+    type: 'interrupt',
+    label: 'BUDGET CONSTRAINT APPLIED',
+    text: 'Outdoor recreation scheduled for 2:00 p.m. has been canceled. Staffing levels do not meet the required ratio for outdoor access. No override available.',
+    auto: true, next: 5
+  },
+  {
+    type: 'scene',
+    time: 'DAY 11',
+    text: [
+      'Alyssa has not been outside in six days.',
+      'Today she stands at the window for a long time. You walk over and ask if she is okay.',
+      "<span class='hl'>She says yes. You've heard her say it the same way three times this week.</span>"
+    ],
+    choices: [
+      { text: 'Log it as no concerns and continue your rounds', next: 'converge' },
+      { text: 'Stay and talk with her for a few minutes', next: 'converge' },
+    ]
+  },
+  CONVERGE_BEAT,
+];
+
+const COMM_BEATS = [
+  {
+    type: 'scene',
+    time: 'DAY 1, MORNING',
+    text: [
+      'The apartment is small. The walls are not decorated yet.',
+      'Alyssa makes coffee strong, with oat milk and sits at the window.',
+      'This is her first morning here. No one has scheduled it.'
+    ],
+    choices: [
+      { text: 'Leave her to the quiet. Check in later.', next: 1 },
+      { text: 'Sit with her and ask how she\'s feeling', next: 1 },
+    ]
+  },
+  {
+    type: 'scene',
+    time: 'DAY 2',
+    text: [
+      "You arrive at 9. You and Alyssa go over the week. She crosses 'dentist' off a list with a marker.",
+      "She asks about taking the bus to the library on her own. You check the route together."
+    ],
+    choices: [
+      { text: 'Tell her the route is straightforward. She\'s got it.', next: 2 },
+    ]
+  },
+  {
+    type: 'interrupt',
+    label: 'UPDATE',
+    text: "She misses the bus. Sits at the stop for twenty minutes. Texts you three frustrated emojis. You text back: 'That's annoying. Next one's in 12.'",
+    auto: true, next: 3
+  },
+  {
+    type: 'scene',
+    time: 'DAY 5',
+    text: [
+      "The support living budget doesn't cover this week's groceries in full. There's a gap of $34.",
+      "You and Alyssa sit at the kitchen table and work through it. It takes a while. It gets sorted."
+    ],
+    choices: [
+      { text: 'Call the benefits office on her behalf', next: 4, override: 'Hold time: 47 minutes. Callback not available.' },
+      { text: 'Work with her to adjust the week\'s meals', next: 4 },
+    ]
+  },
+  {
+    type: 'scene',
+    time: 'DAY 9',
+    text: [
+      "Alyssa tells you she's skipping the day program today. Not because something is wrong.",
+      "Just because she doesn't want to go.",
+      "<span class='hl'>You note it. Nobody files a report. This is what ordinary looks like.</span>"
+    ],
+    choices: [
+      { text: 'Check she\'s okay and leave her to it', next: 'converge' },
+      { text: 'Remind her the program counts toward her hours', next: 'converge', override: 'Participation targets noted in file. No action required at this time.' },
+    ]
+  },
+  CONVERGE_BEAT,
+];
+
+function startNarrative() {
+  G.beatIndex = 0;
+  document.getElementById('narr-track').innerHTML = '';
+  document.getElementById('narr-choices').innerHTML = '';
+  document.getElementById('narr-status').textContent = G.placement === 'inst'
+    ? 'PATH: INSTITUTIONALIZATION'
+    : 'PATH: COMMUNITY-BASED SUPPORT';
+  renderBeat();
+}
+
+function renderBeat() {
+  const beats = G.placement === 'inst' ? INST_BEATS : COMM_BEATS;
+  if (G.beatIndex >= beats.length) { show('s-reveal'); return; }
+  const beat = beats[G.beatIndex];
+  const track = document.getElementById('narr-track');
+  const choicesEl = document.getElementById('narr-choices');
+  choicesEl.innerHTML = '';
+
+  if (beat.type === 'scene') {
+    const el = document.createElement('div');
+    el.className = 'beat beat-scene';
+    el.innerHTML = `<div class="beat-time">${beat.time}</div>${beat.text.map(t => `<p>${t}</p>`).join('')}`;
+    track.appendChild(el);
+    track.scrollTop = track.scrollHeight;
+    setTimeout(() => {
+      beat.choices.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = c.text;
+        btn.onclick = () => pickChoice(c, beats);
+        choicesEl.appendChild(btn);
+      });
+      track.scrollTop = track.scrollHeight;
+    }, 600);
+
+  } else if (beat.type === 'interrupt') {
+    const el = document.createElement('div');
+    el.className = 'beat beat-interrupt';
+    el.innerHTML = `<div class="int-label">${beat.label}</div><p>${beat.text}</p>`;
+    track.appendChild(el);
+    track.scrollTop = track.scrollHeight;
+    setTimeout(() => { G.beatIndex = beat.next; renderBeat(); }, 2200);
+
+  } else if (beat.type === 'converge') {
+    const path = beat[G.placement];
+    const el = document.createElement('div');
+    el.className = 'beat-converge';
+    el.innerHTML = `<div class="conv-moment">${path.moment}</div><div class="conv-q">${path.q}</div><div class="conv-context">${path.context}</div>`;
+    track.appendChild(el);
+    track.scrollTop = track.scrollHeight;
+    setTimeout(() => {
+      path.choices.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = c.text;
+        btn.onclick = () => pickConverge(c, choicesEl);
+        choicesEl.appendChild(btn);
+      });
+      const note = document.createElement('p');
+      note.style.cssText = 'font-size:0.68rem;color:#555;font-style:italic;padding:0 2rem;max-width:680px;margin:0.4rem auto 0;';
+      note.textContent = 'No option is perfect.';
+      track.appendChild(note);
+      track.scrollTop = track.scrollHeight;
+    }, 600);
+  }
+}
+
+function pickChoice(c, beats) {
+  const choicesEl = document.getElementById('narr-choices');
+  choicesEl.querySelectorAll('button').forEach(b => b.disabled = true);
+  if (c.override) {
+    setTimeout(() => {
+      const track = document.getElementById('narr-track');
+      const el = document.createElement('div');
+      el.className = 'beat beat-interrupt';
+      el.innerHTML = `<div class="int-label">OVERRIDE</div><p>${c.override}</p>`;
+      track.appendChild(el);
+      track.scrollTop = track.scrollHeight;
+      setTimeout(() => {
+        const nextIdx = c.next === 'converge' ? beats.length - 1 : c.next;
+        G.beatIndex = nextIdx;
+        renderBeat();
+      }, 2000);
+    }, 400);
+  } else {
+    setTimeout(() => {
+      const nextIdx = c.next === 'converge' ? beats.length - 1 : c.next;
+      G.beatIndex = nextIdx;
+      renderBeat();
+    }, 500);
+  }
+}
+
+function pickConverge(c, choicesEl) {
+  G.convergeChoice = c.text;
+  choicesEl.querySelectorAll('button').forEach(b => b.disabled = true);
+  choicesEl.innerHTML = '';
+  setTimeout(() => {
+    const track = document.getElementById('narr-track');
+    const outcome = document.createElement('div');
+    outcome.className = 'beat beat-scene';
+    outcome.innerHTML = `<p style="font-style:italic;color:#999;">${c.outcome}</p>`;
+    track.appendChild(outcome);
+    track.scrollTop = track.scrollHeight;
+    setTimeout(() => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = 'Continue →';
+      btn.onclick = () => show('s-reveal');
+      choicesEl.appendChild(btn);
+      track.scrollTop = track.scrollHeight;
+    }, 1600);
+  }, 400);
+}
+
+// ── FINAL ──
+const FIN_TEXT = {
+  yes: "You'd make the same recommendation. Perhaps the system offered nothing better. Perhaps you believed it was right. The system is very good at making its constraints feel like your conclusions.",
+  no: "You'd recommend differently. Most people in this system never revisit a decision. She doesn't get to either.",
+  unsure: "Uncertainty is the honest answer. The systems that determine people's lives rarely make room for it."
+};
+
+function finalPick(answer, btn) {
+  document.querySelectorAll('.fin-btn').forEach(b => b.classList.remove('chosen'));
+  btn.classList.add('chosen');
+  const r = document.getElementById('fin-response');
+  r.textContent = FIN_TEXT[answer];
+  r.classList.add('show');
+}
+
+function restart() {
+  G.placement = null; G.beatIndex = 0; G.choices = [];
+  G.docsViewed = new Set();
+  G.slowReady = { family: false, voice: false };
+  G.convergeChoice = null;
+
+  Object.values(slowTimers).forEach(t => clearTimeout(t));
+  slowTimers = {};
+
+  ['family','voice'].forEach(id => {
+    const tag = document.getElementById(`tag-${id}`);
+    if (tag) { tag.textContent = 'Loading…'; tag.className = 'doc-access tag-slow'; }
+    const row = document.getElementById(`row-${id}`);
+    if (row) {
+      row.classList.remove('viewed');
+      row.classList.add('locked');
+      row.onclick = null;
+    }
+  });
+
+  ['medical','behavior','funding'].forEach(id => {
+    const row = document.getElementById(`row-${id}`);
+    if (row) row.classList.remove('viewed');
+  });
+
+  document.getElementById('doc-count').textContent = '0';
+  document.getElementById('cf-proceed').disabled = true;
+  document.getElementById('fin-response').classList.remove('show');
+  document.querySelectorAll('.fin-btn').forEach(b => b.classList.remove('chosen'));
+
+  show('s-open');
+  initSlowDocs();
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  show('s-open');
+  initSlowDocs();
+});
+</script>
+</body>
+</html>
